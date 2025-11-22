@@ -37,12 +37,12 @@ def get_leaderboard(filtered_players):
     return result
 
 # Route for all students
-@app.route("/leaderboard")
+@app.route("/")
 def leaderboard():
     return jsonify(get_leaderboard(players))
 
 # Dynamic route for any school
-@app.route("/school/<school_name>")
+@app.route("/<school_name>")
 def leaderboard_by_school(school_name):
     filtered = [p for p in players if p["school"].lower() == school_name.lower()]
     return jsonify(get_leaderboard(filtered))
