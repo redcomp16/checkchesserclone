@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 USCF_URL = "https://ratings-api.uschess.org/api/v1/members/31482242/sections?Offset=0&Size=50"
 
-@app.route('/leaderboard')
+@app.route('/')
 def leaderboard():
     data = requests.get(USCF_URL).json()
     ratings = [r for section in data["items"] for r in section["ratingRecords"]]
