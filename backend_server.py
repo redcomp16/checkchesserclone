@@ -34,9 +34,14 @@ def leaderboard():
         result.append({
             "name": p["name"],
             "school": p["school"],
-            "rating": rating if rating is not None else "N/A"
+            # For sorting, store as int if possible; N/A becomes 0
+            "rating": rating if isinstance(rating, int) else 0
         })
-    return jsonify(key=lambda x: x["rating"] if isinstance(x["rating"], int) else 0, reverse=True)
+
+    # Sort by descending rating
+    result.sort(key=lambda x: x["rating"], reverse=True)
+
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run(debug=True)
