@@ -3,7 +3,6 @@ import requests
 
 app = Flask(__name__)
 
-# List of players
 players = [
     {"name": "Kirby Lin", "school": "Central", "uscf": 16798007},
     {"name": "Calvin Wang", "school": "Central", "uscf": 30757348},
@@ -20,28 +19,30 @@ def fetch_rating(uscf_id):
         ratings = [r for section in data.get("items", []) for r in section.get("ratingRecords", [])]
         if not ratings:
             return None
-        # Get most recent rating
         most_recent = sorted(ratings, key=lambda r: r.get("event", {}).get("date", ""), reverse=True)[0]
         return most_recent["postRating"]
     except:
         return None
 
-@app.route("/")
-def leaderboard():
+def get_leaderboard(filtered_players):
     result = []
-    for p in players:
+    for p in filtered_players:
         rating = fetch_rating(p["uscf"])
         result.append({
             "name": p["name"],
             "school": p["school"],
-            # For sorting, store as int if possible; N/A becomes 0
             "rating": rating if isinstance(rating, int) else 0
         })
-
-    # Sort by descending rating
     result.sort(key=lambda x: x["rating"], reverse=True)
+    return result
 
-    return jsonify(result)
+# Route for all students
+@app.route("/leaderboard")
+def leaderboard():
+    return jsonify(get_leaderboard(players))
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Dynamic route for any school
+@app.route("/school/<school_name>")
+def leaderboard_by_school(school_name):
+    filtered = [p for p in players if p["school"].lower() == school_name.lower()]
+    return jsonify(get_leaderboard(filtered))
