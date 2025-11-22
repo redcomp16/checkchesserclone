@@ -14,4 +14,4 @@ def leaderboard():
     return jsonify({"rating": most_recent["postRating"]})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
