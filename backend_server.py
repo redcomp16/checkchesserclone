@@ -36,7 +36,7 @@ def leaderboard():
             "school": p["school"],
             "rating": rating if rating is not None else "N/A"
         })
-    return jsonify(key=lambda x: x["rating"] if isinstance(x["rating"], int) else 0, reverse=True))
+    return jsonify(key=lambda x: x["rating"] if isinstance(x["rating"], int) else 0, reverse=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
