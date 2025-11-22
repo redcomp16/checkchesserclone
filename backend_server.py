@@ -1,17 +1,47 @@
-# minimal backend using flask
 from flask import Flask, jsonify
 import requests
 
 app = Flask(__name__)
 
-USCF_URL = "https://ratings-api.uschess.org/api/v1/members/31482242/sections?Offset=0&Size=50"
+# List of players
+players = [
+    {"name": "Kirby Lin", "school": "Central", "uscf": 16798007},
+    {"name": "Calvin Wang", "school": "Central", "uscf": 30757348},
+    {"name": "Edward Lin", "school": "Central", "uscf": 30757702},
+    {"name": "Olivia Ryerson", "school": "Masterman", "uscf": 16727082},
+    {"name": "Eric Yeung", "school": "Masterman", "uscf": 30868847},
+    {"name": "Ali Hawkes", "school": "Masterman", "uscf": 15777743}
+]
 
-@app.route('/')
+def fetch_rating(uscf_id):
+    url = f"https://ratings-api.uschess.org/api/v1/members/{uscf_id}/sections?Offset=0&Size=50"
+    try:
+        data = requests.get(url).json()
+        ratings = [r for section in data.get("items", []) for r in section.get("ratingRecords", [])]
+        if not ratings:
+            return None
+        # Get most recent rating
+        most_recent = sorted(ratings, key=lambda r: r.get("event", {}).get("date", ""), reverse=True)[0]
+        return most_recent["postRating"]
+    except:
+        return None
+
+@app.route("/leaderboard")
 def leaderboard():
-    data = requests.get(USCF_URL).json()
-    ratings = [r for section in data["items"] for r in section["ratingRecords"]]
-    most_recent = sorted(ratings, key=lambda r: r.get("event", {}).get("date", ""), reverse=True)[0]
-    return jsonify({"rating": most_recent["postRating"]})
+    result = []
+    for p in players:
+        rating = fetch_rating(p["uscf"])
+        result.append({
+            "name": p["name"],
+            "school": p["school"],
+            "rating": rating if rating is not None else "N/A"
+        })
+    return jsonify(result)
 
-if __name__ == '__main__':
-    app.run()
+@app.route("/")
+def index():
+    # Serve your static frontend if desired
+    return "Backend running. Access /leaderboard for data."
+
+if __name__ == "__main__":
+    app.run(debug=True)
