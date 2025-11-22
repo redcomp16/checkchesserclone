@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Minimal Leaderboard</title>
+</head>
+<body>
+  <h1>Leaderboard</h1>
+  <p id="rating">Loading...</p>
+
+  <script>
+    fetch('/leaderboard')
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('rating').innerText = 'Most Recent Rating: ' + d.rating;
+      })
+      .catch(() => {
+        document.getElementById('rating').innerText = 'Error loading rating';
+      });
+  </script>
+</body>
+</html>
