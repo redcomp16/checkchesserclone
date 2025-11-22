@@ -26,7 +26,7 @@ def fetch_rating(uscf_id):
     except:
         return None
 
-@app.route("/leaderboard")
+@app.route("/")
 def leaderboard():
     result = []
     for p in players:
@@ -36,12 +36,7 @@ def leaderboard():
             "school": p["school"],
             "rating": rating if rating is not None else "N/A"
         })
-    return jsonify(result)
-
-@app.route("/")
-def index():
-    # Serve your static frontend if desired
-    return "Backend running. Access /leaderboard for data."
+    return jsonify(key=lambda x: x["rating"] if isinstance(x["rating"], int) else 0, reverse=True))
 
 if __name__ == "__main__":
     app.run(debug=True)
