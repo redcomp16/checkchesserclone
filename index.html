@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Minimal Leaderboard</title>
+  <meta charset="UTF-8">
+  <title>Static Leaderboard</title>
 </head>
 <body>
   <h1>Leaderboard</h1>
   <p id="rating">Loading...</p>
 
   <script>
-    fetch('/leaderboard')
+    const url = "https://ratings-api.uschess.org/api/v1/members/31482242/sections?Offset=0&Size=50";
+
+    fetch(url)
       .then(r => r.json())
-      .then(d => {
-        document.getElementById('rating').innerText = 'Most Recent Rating: ' + d.rating;
+      .then(data => {
+        const ratings = [];
+        for (const section of data.items) {
+          for (const rec of section.ratingRecords) ratings.push(rec);
+        }
+        ratings.sort((a, b) => {
+          const da = a.event?.date || "";
+          const db = b.event?.date || "";
+          return db.localeCompare(da);
+        });
+        document.getElementById("rating").innerText = "Most Recent Rating: " + ratings[0].postRating;
       })
-      .catch(() => {
-        document.getElementById('rating').innerText = 'Error loading rating';
+      .catch(err => {
+        document.getElementById("rating").innerText = "Error loading rating (CORS may be blocking it)";
       });
   </script>
 </body>
